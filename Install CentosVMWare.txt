@@ -1,0 +1,55 @@
+vi ifcfg-ens192
+nmtui
+yumupdate
+systemctl stop chronyd
+systemctl disable chronyd
+
+yum install ntp
+systemctl enable ntpd.service
+systemctl start ntpd.service
+timedatectl set-timezone Europe/Paris
+firewall-cmd --zone=public --add-port=123/udp --permanent
+
+um -y install openssh-server
+vi /etc/ssh/ssh_config
+systemctl enable sshd
+systemctl start sshd
+systemctl status sshd
+useradd svcsupcockpit
+passwd svcsupcockpit
+
+vi /etc/sysconfig/iptables-config :
+-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+-A RH-Firewall-1-INPUT -m tcp -p tcp --dport 22 -j ACCEPT
+
+systemctl stop firewalld
+systemctl start firewalld
+firewall-cmd --zone=public --add-port=22/tcp --permanent
+firewall-cmd --zone=public --add-port=123/udp --permanent
+systemctl stop firewalld
+systemctl start firewalld
+firewall-cmd --reload
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl -l status NetworkManager network
+mkdir /media/iso 
+mount /dev/sr0 /media/iso/
+cp /media/iso/VMwareTools-10.3.21-14772444.tar.gz /tmp/
+cd /tmp
+tar -zxvf VMwareTools-10.3.21-14772444.tar.gz
+cd vmware-tools-distrib
+yum install perl
+perl ./vmware-install.pl
+exit
+rm -rfv vmware-tools-distrib/
+
+cd  /etc/systemd/system/
+ vi /etc/systemd/system/reboot.service
+ls -lrt /etc/systemd/system/reboot.service
+chmod +x /etc/systemd/system/reboot.service
+mkdir /var/calnt
+vi /var/calnt/reboot_service.sh
+ls -lrt /var/calnt/reboot_service.sh
+chmod +x  /var/calnt/reboot_service.sh
+systemctl daemon-reload
+reboot
