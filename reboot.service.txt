@@ -1,0 +1,11 @@
+[unit]
+Description=relance des service cruciaux
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/var/calnt/reboot_script.pl
+TimeoutStartSec=0
+
+[Install]
+WantedBy=default.target
