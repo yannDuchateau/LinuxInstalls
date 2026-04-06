@@ -1,0 +1,948 @@
+ls
+./ctrlpart.ksh n
+
+sadmin/expl/security
+./mkuser.ksh
+function crehomedir
+{
+typeset -i synchro_err=0
+typeset -i partage_err=0
+
+echo "grp_site:"$grp_site"**"
+case $grp_site in
+ "SITE_V2")
+ echo "\nCREATION HOME DIR $siacode POUR UTILISATEUR DE VILLE2"
+ mkdir //$v2server/$cashare/$siacode
+
+ echo "\nATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR \c"
+ echo "...\c"
+ while $boucle
+ do
+ cacls \\\\$v2server\\$cashare\\$siacode /t /e /g $siacode:c 
+ if [ $? != 0 ]
+ then
+ echo "...\c"
+ sleep 30
+ synchro_err=synchro_err+1
+ if [ $synchro_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR" \
+ | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ else
+ break
+ fi
+ done 
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ]
+ then 
+ echo "\nATTENTE PARTAGE AUTOMATIQUE POUR $siacode \c"
+ while $boucle
+ do
+ cd c:/temp
+ net view \\\\$v2server | grep -i "^$siacode" 1>$tmpdir/null 2>&1
+ if [ $? -eq 0 ]
+ then
+ break
+ else
+ echo "...\c"
+ sleep 30
+ partage_err=partage_err+1
+ if [ $partage_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE PARTAGE AUTOMATIQUE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ fi
+ done
+ fi
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ] && [ $partage_err -lt $TIMEOUT_HOMEDIR ]
+ then
+ echo "\nMODIFICATION DROITS TOUS ET ADMINS SUR HOME DIR SUR $v2server"
+ cacls \\\\$v2server\\$cashare\\$siacode /e /r 'Tout le monde' 1>$tmpdir\\null 2>&1
+ cacls \\\\$v2server\\$cashare\\$siacode /e /r 'Everyone' 1>$tmpdir\\null 2>&1
+
+	 cacls \\\\$v2server\\$cashare\\$siacode /T /E /G 'CONTOSO\Domain Admins':F 1>$tmpdir\\null 2>&1
+	 cacls \\\\$v2server\\$cashare\\$siacode /T /E /G 'CONTOSO\TL-Admin_Ressources':F 1>$tmpdir\\null 2>&1
+
+	 
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v2server\\$cashare\\$siacode /t /e /P 'CONTOSO\CA-Admin_Ressources':X\;TR 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v2server\\$cashare\\$siacode /t /e /P 'CONTOSO\Domain Admins':X\;TR 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v2server\\$cashare\\$siacode /t /e /P 'CONTOSO\TL-Admin_Ressources':F 1> $tmpdir\\null 2>&1
+ else
+ echo ""
+ echo "=========================================" | tee -a $tracelog
+ echo "MODIFICATION DES DROITS NON EFFECTUEE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR(S) LORS DES ETAPE(S) PRECEDENTE(S)" | tee -a $tracelog
+ echo "=========================================" | tee -a $tracelog
+ fi
+ ;;
+
+ "SITE_V1")
+
+ echo "\nCREATION HOME DIR $siacode POUR UTILISATEUR DE VILLE1"
+ mkdir //$v1server/$toshare/$tohome/$topart/$siacode
+
+ echo "\nATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR \c"
+ echo "...\c"
+ while $boucle
+ do
+ cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /g $siacode:c 
+ if [ $? != 0 ]
+ then
+ echo "...\c"
+ sleep 30
+ synchro_err=synchro_err+1
+ if [ $synchro_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR" \
+ | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ else
+ break
+ fi
+ done 
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ]
+ then 
+ echo "\nATTENTE PARTAGE AUTOMATIQUE POUR $siacode \c"
+ while $boucle
+ do
+ cd c:/temp
+ net view \\\\$v1server | grep "^$siacode" 1>$tmpdir/null 2>&1
+ if [ $? -eq 0 ]
+ then
+ break
+ else
+ echo "...\c"
+ sleep 30
+ partage_err=partage_err+1
+ if [ $partage_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE PARTAGE AUTOMATIQUE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ fi
+ done
+ fi
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ] && [ $partage_err -lt $TIMEOUT_HOMEDIR ]
+ then
+ echo "\nMODIFICATION DROITS TOUS ET ADMINS SUR HOME DIR SUR $v1server"
+ cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /e /r 'Tout le monde' 1> $tmpdir\\null 2>&1
+ cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /e /r 'Everyone' 1> $tmpdir\\null 2>&1
+	 cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /e /r 'ESPACEAPP\Admins du domaine' 1> $tmpdir\\null 2>&1
+
+
+	 cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /T /E /G 'CONTOSO\TL-Admin_Ressources':F 1> $tmpdir\\null 2>&1 
+	 cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /T /E /G 'CONTOSO\Admins du domaine':F 1> $tmpdir\\null 2>&1 
+
+
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /P 'CONTOSO\TL-Admin_Ressources':X\;TR 1> $tmpdir\\null 2>&1 
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /P 'CONTOSO\Admins du domaine':X\;TR 1> $tmpdir\\null 2>&1 
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /P 'ESPACEAPP\Admins du domaine':F > $tmpdir\\null 2>&1 
+ else
+ echo "=========================================" | tee -a $tracelog
+ echo "MODIFICATION DES DROITS NON EFFECTUEE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR(S) LORS DES ETAPE(S) PRECEDENTE(S)" | tee -a $tracelog
+ echo "=========================================" | tee -a $tracelog
+ fi
+ ;;
+
+
+ "SITE_V3")
+ echo "\nCREATION HOME DIR $siacode POUR UTILISATEUR DE VILLE3"
+ mkdir //$ntserveur/$ntshare/userse/$nthome/$siacode
+
+ echo "\nATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR \c"
+ echo "...\c"
+ while $boucle
+ do
+ cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /g $siacode:c 
+ if [ $? != 0 ]
+ then
+ echo "...\c"
+ sleep 30
+ synchro_err=synchro_err+1
+ if [ $synchro_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR" \
+ | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ else
+ break
+ fi
+ done
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ]
+ then 
+ echo "\nATTENTE PARTAGE AUTOMATIQUE POUR $siacode \c"
+ while $boucle
+ do
+ cd c:/temp
+ net view \\\\$ntserveur | grep "^$siacode" 1>$tmpdir/null 2>&1
+ if [ $? -eq 0 ]
+ then
+ break
+ else
+ echo "...\c"
+ sleep 30
+ partage_err=partage_err+1
+ if [ $partage_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE PARTAGE AUTOMATIQUE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ fi
+ done
+ fi
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ] && [ $partage_err -lt $TIMEOUT_HOMEDIR ]
+ then
+ echo "\nMODIFICATION DROITS TOUS ET ADMINS SUR HOME DIR SUR $ntserveur" 
+ cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /e /r 'Tout le monde'
+ cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /e /r 'Everyone'
+
+	 cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /T /E /G 'CONTOSO\TL-Admin_Ressources':F $tmpdir\\null 2>&1
+	 cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /T /E /G 'CONTOSO\Admins du domaine':F $tmpdir\\null 2>&1
+
+
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /P 'CONTOSO\TL-Admin_Ressources':F 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /P 'CONTOSO\Admins du domaine':X\;TR 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /P 'ESPACENTR\Domain Admins':F 1> $tmpdir\\null 2>&1
+ else
+ echo ""
+ echo "=========================================" | tee -a $tracelog
+ echo "MODIFICATION DES DROITS NON EFFECTUEE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR(S) LORS DES ETAPE(S) PRECEDENTE(S)" | tee -a $tracelog
+ echo "=========================================" | tee -a $tracelog
+ fi
+ ;;
+
+ *)
+ echo "\nHOME DIR PAS CREE (SITE SANS HOME DIR)"
+ ;;
+ esac
+}
+ function crehomepriv
+{
+	case $grp_site in
+
+		"SITE_V1"|"SITE_V3")
+		echo "\nCREATION ESPACE PRIVATIF $siacode POUR UTILISATEUR DE VILLE1/VILLE3"
+		mkdir //$serv_priv/$parta_priv/$siacode
+###		echo o | cacls \\\\$serv_priv\\$parta_priv\\$siacode /c /g $siacode:c
+chacl -n //$serv_priv/$parta_priv/$siacode
+chacl -g CONTOSO\\$siacode':r w x a re we ra wa rc s:npia,'CONTOSO\\$siacode':r w x a re we ra wa d rc s:cia ioa oia' //$serv_priv/$parta_priv/$siacode
+		;;
+
+		"SITE_V2")
+		echo "\nCREATION ESPACE PRIVATIF $siacode POUR UTILISATEUR DE VILLE2"
+ mkdir //$ca_serv_priv/$ca_parta_priv/$siacode
+###		echo o | cacls \\\\$ca_serv_priv\\$ca_parta_priv\\$siacode /c /g $siacode:c
+chacl -n //$ca_serv_priv/$ca_parta_priv/$siacode
+chacl -g CONTOSO\\$siacode':r w x a re we ra wa rc s:npia,'CONTOSO\\$siacode':r w x a re we ra wa d rc s:cia ioa oia' //$ca_serv_priv/$ca_parta_priv/$siacode
+		;;
+
+		*)
+		echo "\nESPACE PRIVATIF NON CREE (HORS VILLE1, VILLE2 OU VILLE3)"
+		;;
+	esac
+}
+ function makecompte 
+{
+ 
+	echo "\nCREATION DU COMPTE $siacode SUR CONTOSO"
+	#- - Creation du user NT - -
+
+ #$dra_cmde/ea /domain:CONTOSO /server:$controleur user "$prenom $nom" create ou:ou=utilisateurs,ou=AES,dc=aes,dc=company,dc=fr firstname:"$prenom" lastname:"$nom" fullname:"$prenom $nom" dispname:"$prenom $nom" SamAccountName:$siacode scriptpath:$logonscript password:"$passwd" passwordexpired:Y groups:$grp_site
+set -x
+dsadd user "CN=$prenom $nom",OU=Utilisateurs,OU=Aes,DC=aes,DC=company,DC=fr -samid $siacode -fn "$prenom" -ln "$nom" -display "$prenom $nom" -upn $siacode@aes.company.fr -disabled no -pwd "$passwd" -loscr $logonscript -memberof CN=$grp_site,OU=Utilisateurs,OU=Aes,DC=aes,DC=company,DC=fr
+set +x
+	#- - Creation de la home-directory - -
+ 	crehomedir $siacode $grp_site
+ 
+	#- - Creation de l'espace privatif - -
+ 	crehomepriv $siacode $grp_site
+
+ echo "\nUTILISATEUR $nom_notes: CREE $siacode,$passwd,$nom $prenom,$description"
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: UTILISATEUR $nom_notes: CREE $siacode,$passwd,$nom $prenom,$description" >> $mkuser_log
+ cod_retour=0
+}
+ function creuser
+{
+# recupere les champs du fichier source
+nbline=`cat $1 | wc -l`
+line=1
+rm $resumk $ordomk 1> $null 2>&1
+# comparaison avec fichier all_grh
+while [ $line -le $nbline ]
+do
+ nom_notes=`sed -n ${line}p $1`
+ liste=$listeracf
+ awk -v nom="$nom_notes" '
+ { 
+ nb_elmt = split(nom,elm)
+ for (i = 1; i <= nb_elmt; i++ ) 
+ { 
+ #elmt[i] = toupper(substr(elm[i],1,1)) tolower(substr(elm[i],2))
+ elmt[i] = toupper(elm[i])
+ if ( $0 !~ elmt [i] ) { next }
+ }
+ printf ("%s\n",$0)
+ }
+ ' $all_grh > $resumk
+ cat $resumk | awk -F\; '{print $2$5$6$18$19$24 }' | awk -F\" '{print tolower($2)";"toupper(substr($4,1,1)) tolower(substr($4,2)) ";"toupper(substr($6,1,1)) tolower(substr($6,2)) ";"$8";"$10";"$12}' > $ordomk
+ rm $resumk
+ cat $ordomk
+ multi=`cat $ordomk | wc -l`
+
+ if [ $multi != "0" ] # au moins une entree
+ then
+ if [ $multi != "1" ] # plusieurs entrees 
+ then
+ echo "\n\n\nCHOIX MULTIPLE"
+ cat $ordomk | awk '{ print (NR"- "$0)}'
+ echo "SELECTIONNER UNE ENTREE (1,2,3 ... OU RETURN) :";read choix
+ existchoix=`echo $choix | awk '{print $1}'`
+ if [ ${existchoix:-"noarg"} != "noarg" ]
+ then
+	choixuser=`sed -n ${choix}p $ordomk` 
+ siacode=`echo $choixuser | awk -F \; '{ print $1 }'`
+ nomprof=`echo $choixuser | awk -F \; '{ print $2 }'`
+ if [ ${siacode:-"noarg"} = "noarg" ]
+ then
+ echo "UTILISATEUR $nomprof: CODE SIA INCONNU "
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ else # code sia connu
+	 echo "**** UTILISATEUR $nom_notes: CREATION LOGIN (LOGIN INCONNU RACF): $login ****" >> $mkuser_log
+ resu=$login$choixuser
+ cre_user="o" 
+ fi
+ else # abandon
+	echo "\nUTILISATEUR $nom_notes: CREATION ABANDONNEE ( UTILISATEURS MULTIPLES )"
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: CREATION ABANDONNEE ( UTILISATEURS MULTIPLES ) ****" >> $mkuser_log
+ cre_user="n"
+
+ fi 
+
+ else # une seule entree 
+ siacode=`cat $ordomk | awk -F \; '{ print $1 }'`
+ nomprof=`cat $ordomk | awk -F \; '{ print $2 }'`
+ if [ ${siacode:-"noarg"} = "noarg" ]
+ then
+ echo "UTILISATEUR $nomprof: CODE PROF INCONNU "
+ echo "$USERNAME le `date '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ else
+ resu=`cat $ordomk`
+	 rm $ordomk
+ cre_user="o" 
+ fi 
+ fi
+ else # pas d'entree connue .... force crÚation compte inconnu GRH 
+ echo "\nUTILISATEUR $nom_notes: INCONNU \c "
+ echo "\nGENERATION DU COMPTE ? (o/n)";read cpte
+ if [ ${cpte:-"noarg"} = "o" ]
+ then
+ nom=""
+ for arg in $nom_notes
+ do
+ # sur chaque mot de la ligne, 1ere lettte maj, les autre minus.
+ Nom=`echo $arg | awk '{ print toupper(substr($1,1,1)) tolower(substr($1,2)) }'`
+ nom=$nom" "$Nom
+ done
+ echo "\nENTRER NOM DE LOGIN";read login
+ echo "\nENTRER NOM DU SERVICE";read service
+ login=`echo $login | awk '{print tolower(substr($1,1))}'`
+ service=`echo $service | awk '{print toupper(substr($1,1))}'`
+ echo "\nCREATION DU COMPTE $login POUR L'UTILISATEUR $nom, service $service ?(o/n)";read rpse
+ if [ $rpse != "o" ] 
+ then
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ else
+	 echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: CREATION COMPTE (INCONNU RACF) : $nom,$login,$service ****" >> $mkuser_log
+ resu="$login;$nom;$service"
+ cre_user="o" 
+ fi
+ else
+	echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ fi
+ fi
+
+if [ $cre_user = "o" ]
+then
+ siacode=`echo $resu | awk -F\; '{print $1}'`
+ nom=`echo $resu | awk -F\; '{print $2}'`
+ prenom=`echo $resu | awk -F\; '{print $3}'`
+ service=`echo $resu | awk -F\; '{print $5}'`
+ ca=`echo $resu | awk -F\; '{print $4}'`
+ site=`echo $resu | awk -F\; '{print $6}'`
+ 
+ # passwd=1az2qs9wx
+ rand=$RANDOM
+ key=`date '+%S%a%e%b'`
+ passwd=`echo $rand | awk '{ print int(((1/$1*1000)+1)*10000000)}' | tr 0-9 $key`
+
+ # teste si compte existe deja dans CONTOSO
+ userinfo -D $domain -b $siacode 1> $null 2>&1
+ if [ $? != 0 ]
+ then 
+ 	case $site in
+		F01) grp_site="SITE_V1" ;;
+		F02|F06|F08) grp_site="SITE_V3" ;;
+		F04) grp_site="SITE_V2" ;;
+		F07) grp_site="company_VA" ;;
+		*) site="site"
+	 	 while [[ $site != "TO" && $site != "NA" && $site != "CA" && $site != "VA" ]] 
+	 	 do
+	 	echo "Quel site (TO=VILLE1, NA=VILLE3, CA=VILLE2, VA=VILLE4) ? "; read $site 
+ 			site=`echo $site | awk '{ print toupper($1) }'`
+	 	 done
+	 	 grp_site="company_"$site
+	 	 ;;
+ 	esac
+ description="$grp_site - $service ($ca)"
+	case $grp_site in
+
+		SITE_V1)
+			logonscript="loginall.bat"
+			controleur=$ctrl_to 
+			makecompte
+			;;
+		SITE_V3)
+			logonscript="loginall.bat"
+			controleur=$ctrl_na 
+			makecompte
+			;;
+		SITE_V2)
+			logonscript="loginuser.bat"
+			controleur=$ctrl_ca 
+			makecompte
+			;;
+
+	esac
+
+ 
+
+ 
+
+
+ else
+ echo "UTILISATEUR "$siacode" EXISTE DEJA : "`userinfo -D CONTOSO -b $siacode`"\n" 
+ echo "$USERNAME LE `date '+%d/%m/%y'`: UTILISATEUR "$siacode" EXISTE DEJA" >> $mkuser_log
+ cod_retour=3
+ fi 
+else
+ cod_retour=2
+fi
+let line=line+1
+done
+exit $cod_retour
+}
+cd //v1store02/sysadmin/expl/security
+./mkuser.ksh
+unction crehomedir
+{
+typeset -i synchro_err=0
+typeset -i partage_err=0
+
+echo "grp_site:"$grp_site"**"
+case $grp_site in
+ "SITE_V2")
+ echo "\nCREATION HOME DIR $siacode POUR UTILISATEUR DE VILLE2"
+ mkdir //$v2server/$cashare/$siacode
+
+ echo "\nATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR \c"
+ echo "...\c"
+ while $boucle
+ do
+ cacls \\\\$v2server\\$cashare\\$siacode /t /e /g $siacode:c 
+ if [ $? != 0 ]
+ then
+ echo "...\c"
+ sleep 30
+ synchro_err=synchro_err+1
+ if [ $synchro_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR" \
+ | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ else
+ break
+ fi
+ done 
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ]
+ then 
+ echo "\nATTENTE PARTAGE AUTOMATIQUE POUR $siacode \c"
+ while $boucle
+ do
+ cd c:/temp
+ net view \\\\$v2server | grep -i "^$siacode" 1>$tmpdir/null 2>&1
+ if [ $? -eq 0 ]
+ then
+ break
+ else
+ echo "...\c"
+ sleep 30
+ partage_err=partage_err+1
+ if [ $partage_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE PARTAGE AUTOMATIQUE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ fi
+ done
+ fi
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ] && [ $partage_err -lt $TIMEOUT_HOMEDIR ]
+ then
+ echo "\nMODIFICATION DROITS TOUS ET ADMINS SUR HOME DIR SUR $v2server"
+ cacls \\\\$v2server\\$cashare\\$siacode /e /r 'Tout le monde' 1>$tmpdir\\null 2>&1
+ cacls \\\\$v2server\\$cashare\\$siacode /e /r 'Everyone' 1>$tmpdir\\null 2>&1
+
+	 cacls \\\\$v2server\\$cashare\\$siacode /T /E /G 'CONTOSO\Domain Admins':F 1>$tmpdir\\null 2>&1
+	 cacls \\\\$v2server\\$cashare\\$siacode /T /E /G 'CONTOSO\TL-Admin_Ressources':F 1>$tmpdir\\null 2>&1
+
+	 
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v2server\\$cashare\\$siacode /t /e /P 'CONTOSO\CA-Admin_Ressources':X\;TR 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v2server\\$cashare\\$siacode /t /e /P 'CONTOSO\Domain Admins':X\;TR 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v2server\\$cashare\\$siacode /t /e /P 'CONTOSO\TL-Admin_Ressources':F 1> $tmpdir\\null 2>&1
+ else
+ echo ""
+ echo "=========================================" | tee -a $tracelog
+ echo "MODIFICATION DES DROITS NON EFFECTUEE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR(S) LORS DES ETAPE(S) PRECEDENTE(S)" | tee -a $tracelog
+ echo "=========================================" | tee -a $tracelog
+ fi
+ ;;
+
+ "SITE_V1")
+
+ echo "\nCREATION HOME DIR $siacode POUR UTILISATEUR DE VILLE1"
+ mkdir //$v1server/$toshare/$tohome/$topart/$siacode
+
+ echo "\nATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR \c"
+ echo "...\c"
+ while $boucle
+ do
+ cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /g $siacode:c 
+ if [ $? != 0 ]
+ then
+ echo "...\c"
+ sleep 30
+ synchro_err=synchro_err+1
+ if [ $synchro_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR" \
+ | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ else
+ break
+ fi
+ done 
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ]
+ then 
+ echo "\nATTENTE PARTAGE AUTOMATIQUE POUR $siacode \c"
+ while $boucle
+ do
+ cd c:/temp
+ net view \\\\$v1server | grep "^$siacode" 1>$tmpdir/null 2>&1
+ if [ $? -eq 0 ]
+ then
+ break
+ else
+ echo "...\c"
+ sleep 30
+ partage_err=partage_err+1
+ if [ $partage_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE PARTAGE AUTOMATIQUE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ fi
+ done
+ fi
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ] && [ $partage_err -lt $TIMEOUT_HOMEDIR ]
+ then
+ echo "\nMODIFICATION DROITS TOUS ET ADMINS SUR HOME DIR SUR $v1server"
+ cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /e /r 'Tout le monde' 1> $tmpdir\\null 2>&1
+ cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /e /r 'Everyone' 1> $tmpdir\\null 2>&1
+	 cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /e /r 'ESPACEAPP\Admins du domaine' 1> $tmpdir\\null 2>&1
+
+
+	 cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /T /E /G 'CONTOSO\TL-Admin_Ressources':F 1> $tmpdir\\null 2>&1 
+	 cacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /T /E /G 'CONTOSO\Admins du domaine':F 1> $tmpdir\\null 2>&1 
+
+
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /P 'CONTOSO\TL-Admin_Ressources':X\;TR 1> $tmpdir\\null 2>&1 
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /P 'CONTOSO\Admins du domaine':X\;TR 1> $tmpdir\\null 2>&1 
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$v1server\\$toshare\\$tohome\\$topart\\$siacode /t /e /P 'ESPACEAPP\Admins du domaine':F > $tmpdir\\null 2>&1 
+ else
+ echo "=========================================" | tee -a $tracelog
+ echo "MODIFICATION DES DROITS NON EFFECTUEE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR(S) LORS DES ETAPE(S) PRECEDENTE(S)" | tee -a $tracelog
+ echo "=========================================" | tee -a $tracelog
+ fi
+ ;;
+
+
+ "SITE_V3")
+ echo "\nCREATION HOME DIR $siacode POUR UTILISATEUR DE VILLE3"
+ mkdir //$ntserveur/$ntshare/userse/$nthome/$siacode
+
+ echo "\nATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR \c"
+ echo "...\c"
+ while $boucle
+ do
+ cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /g $siacode:c 
+ if [ $? != 0 ]
+ then
+ echo "...\c"
+ sleep 30
+ synchro_err=synchro_err+1
+ if [ $synchro_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE SYNCHRO DOMAINE AVANT AJOUT DROITS CT POUR $siacode SUR HOME DIR" \
+ | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ else
+ break
+ fi
+ done
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ]
+ then 
+ echo "\nATTENTE PARTAGE AUTOMATIQUE POUR $siacode \c"
+ while $boucle
+ do
+ cd c:/temp
+ net view \\\\$ntserveur | grep "^$siacode" 1>$tmpdir/null 2>&1
+ if [ $? -eq 0 ]
+ then
+ break
+ else
+ echo "...\c"
+ sleep 30
+ partage_err=partage_err+1
+ if [ $partage_err -eq $TIMEOUT_HOMEDIR ]
+ then
+ echo ""
+ echo "========================================" | tee -a $tracelog
+ echo "ATTENTE PARTAGE AUTOMATIQUE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR : Timeout atteint !!" | tee -a $tracelog
+ echo "========================================" | tee -a $tracelog
+ break
+ fi
+ fi
+ done
+ fi
+
+ if [ $synchro_err -lt $TIMEOUT_HOMEDIR ] && [ $partage_err -lt $TIMEOUT_HOMEDIR ]
+ then
+ echo "\nMODIFICATION DROITS TOUS ET ADMINS SUR HOME DIR SUR $ntserveur" 
+ cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /e /r 'Tout le monde'
+ cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /e /r 'Everyone'
+
+	 cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /T /E /G 'CONTOSO\TL-Admin_Ressources':F $tmpdir\\null 2>&1
+	 cacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /T /E /G 'CONTOSO\Admins du domaine':F $tmpdir\\null 2>&1
+
+
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /P 'CONTOSO\TL-Admin_Ressources':F 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /P 'CONTOSO\Admins du domaine':X\;TR 1> $tmpdir\\null 2>&1
+ #//$admserveur/sysadmin/expl/home_dir/bin/xcacls \\\\$ntserveur\\$ntshare\\userse\\$nthome\\$siacode /t /e /P 'ESPACENTR\Domain Admins':F 1> $tmpdir\\null 2>&1
+ else
+ echo ""
+ echo "=========================================" | tee -a $tracelog
+ echo "MODIFICATION DES DROITS NON EFFECTUEE POUR $siacode" | tee -a $tracelog
+ echo "ERREUR(S) LORS DES ETAPE(S) PRECEDENTE(S)" | tee -a $tracelog
+ echo "=========================================" | tee -a $tracelog
+ fi
+ ;;
+
+ *)
+ echo "\nHOME DIR PAS CREE (SITE SANS HOME DIR)"
+ ;;
+ esac
+}
+function crehomepriv
+{
+	case $grp_site in
+
+		"SITE_V1"|"SITE_V3")
+		echo "\nCREATION ESPACE PRIVATIF $siacode POUR UTILISATEUR DE VILLE1/VILLE3"
+		mkdir //$serv_priv/$parta_priv/$siacode
+###		echo o | cacls \\\\$serv_priv\\$parta_priv\\$siacode /c /g $siacode:c
+chacl -n //$serv_priv/$parta_priv/$siacode
+chacl -g CONTOSO\\$siacode':r w x a re we ra wa rc s:npia,'CONTOSO\\$siacode':r w x a re we ra wa d rc s:cia ioa oia' //$serv_priv/$parta_priv/$siacode
+		;;
+
+		"SITE_V2")
+		echo "\nCREATION ESPACE PRIVATIF $siacode POUR UTILISATEUR DE VILLE2"
+ mkdir //$ca_serv_priv/$ca_parta_priv/$siacode
+###		echo o | cacls \\\\$ca_serv_priv\\$ca_parta_priv\\$siacode /c /g $siacode:c
+chacl -n //$ca_serv_priv/$ca_parta_priv/$siacode
+chacl -g CONTOSO\\$siacode':r w x a re we ra wa rc s:npia,'CONTOSO\\$siacode':r w x a re we ra wa d rc s:cia ioa oia' //$ca_serv_priv/$ca_parta_priv/$siacode
+		;;
+
+		*)
+		echo "\nESPACE PRIVATIF NON CREE (HORS VILLE1, VILLE2 OU VILLE3)"
+		;;
+	esac
+}
+function makecompte 
+{
+ 
+	echo "\nCREATION DU COMPTE $siacode SUR CONTOSO"
+	#- - Creation du user NT - -
+
+ #$dra_cmde/ea /domain:CONTOSO /server:$controleur user "$prenom $nom" create ou:ou=utilisateurs,ou=AES,dc=aes,dc=company,dc=fr firstname:"$prenom" lastname:"$nom" fullname:"$prenom $nom" dispname:"$prenom $nom" SamAccountName:$siacode scriptpath:$logonscript password:"$passwd" passwordexpired:Y groups:$grp_site
+set -x
+dsadd user "CN=$prenom $nom",OU=Utilisateurs,OU=Aes,DC=aes,DC=company,DC=fr -samid $siacode -fn "$prenom" -ln "$nom" -display "$prenom $nom" -upn $siacode@aes.company.fr -disabled no -pwd "$passwd" -loscr $logonscript -memberof CN=$grp_site,OU=Utilisateurs,OU=Aes,DC=aes,DC=company,DC=fr
+set +x
+	#- - Creation de la home-directory - -
+ 	crehomedir $siacode $grp_site
+ 
+	#- - Creation de l'espace privatif - -
+ 	crehomepriv $siacode $grp_site
+
+ echo "\nUTILISATEUR $nom_notes: CREE $siacode,$passwd,$nom $prenom,$description"
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: UTILISATEUR $nom_notes: CREE $siacode,$passwd,$nom $prenom,$description" >> $mkuser_log
+ cod_retour=0
+}
+function creuser
+{
+# recupere les champs du fichier source
+nbline=`cat $1 | wc -l`
+line=1
+rm $resumk $ordomk 1> $null 2>&1
+# comparaison avec fichier all_grh
+while [ $line -le $nbline ]
+do
+ nom_notes=`sed -n ${line}p $1`
+ liste=$listeracf
+ awk -v nom="$nom_notes" '
+ { 
+ nb_elmt = split(nom,elm)
+ for (i = 1; i <= nb_elmt; i++ ) 
+ { 
+ #elmt[i] = toupper(substr(elm[i],1,1)) tolower(substr(elm[i],2))
+ elmt[i] = toupper(elm[i])
+ if ( $0 !~ elmt [i] ) { next }
+ }
+ printf ("%s\n",$0)
+ }
+ ' $all_grh > $resumk
+ cat $resumk | awk -F\; '{print $2$5$6$18$19$24 }' | awk -F\" '{print tolower($2)";"toupper(substr($4,1,1)) tolower(substr($4,2)) ";"toupper(substr($6,1,1)) tolower(substr($6,2)) ";"$8";"$10";"$12}' > $ordomk
+ rm $resumk
+ cat $ordomk
+ multi=`cat $ordomk | wc -l`
+
+ if [ $multi != "0" ] # au moins une entree
+ then
+ if [ $multi != "1" ] # plusieurs entrees 
+ then
+ echo "\n\n\nCHOIX MULTIPLE"
+ cat $ordomk | awk '{ print (NR"- "$0)}'
+ echo "SELECTIONNER UNE ENTREE (1,2,3 ... OU RETURN) :";read choix
+ existchoix=`echo $choix | awk '{print $1}'`
+ if [ ${existchoix:-"noarg"} != "noarg" ]
+ then
+	choixuser=`sed -n ${choix}p $ordomk` 
+ siacode=`echo $choixuser | awk -F \; '{ print $1 }'`
+ nomprof=`echo $choixuser | awk -F \; '{ print $2 }'`
+ if [ ${siacode:-"noarg"} = "noarg" ]
+ then
+ echo "UTILISATEUR $nomprof: CODE SIA INCONNU "
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ else # code sia connu
+	 echo "**** UTILISATEUR $nom_notes: CREATION LOGIN (LOGIN INCONNU RACF): $login ****" >> $mkuser_log
+ resu=$login$choixuser
+ cre_user="o" 
+ fi
+ else # abandon
+	echo "\nUTILISATEUR $nom_notes: CREATION ABANDONNEE ( UTILISATEURS MULTIPLES )"
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: CREATION ABANDONNEE ( UTILISATEURS MULTIPLES ) ****" >> $mkuser_log
+ cre_user="n"
+
+ fi 
+
+ else # une seule entree 
+ siacode=`cat $ordomk | awk -F \; '{ print $1 }'`
+ nomprof=`cat $ordomk | awk -F \; '{ print $2 }'`
+ if [ ${siacode:-"noarg"} = "noarg" ]
+ then
+ echo "UTILISATEUR $nomprof: CODE PROF INCONNU "
+ echo "$USERNAME le `date '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ else
+ resu=`cat $ordomk`
+	 rm $ordomk
+ cre_user="o" 
+ fi 
+ fi
+ else # pas d'entree connue .... force crÚation compte inconnu GRH 
+ echo "\nUTILISATEUR $nom_notes: INCONNU \c "
+ echo "\nGENERATION DU COMPTE ? (o/n)";read cpte
+ if [ ${cpte:-"noarg"} = "o" ]
+ then
+ nom=""
+ for arg in $nom_notes
+ do
+ # sur chaque mot de la ligne, 1ere lettte maj, les autre minus.
+ Nom=`echo $arg | awk '{ print toupper(substr($1,1,1)) tolower(substr($1,2)) }'`
+ nom=$nom" "$Nom
+ done
+ echo "\nENTRER NOM DE LOGIN";read login
+ echo "\nENTRER NOM DU SERVICE";read service
+ login=`echo $login | awk '{print tolower(substr($1,1))}'`
+ service=`echo $service | awk '{print toupper(substr($1,1))}'`
+ echo "\nCREATION DU COMPTE $login POUR L'UTILISATEUR $nom, service $service ?(o/n)";read rpse
+ if [ $rpse != "o" ] 
+ then
+ echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ else
+	 echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: CREATION COMPTE (INCONNU RACF) : $nom,$login,$service ****" >> $mkuser_log
+ resu="$login;$nom;$service"
+ cre_user="o" 
+ fi
+ else
+	echo "$USERNAME LE `DATE '+%d/%m/%y'`: **** UTILISATEUR $nom_notes: INCONNU ****" >> $mkuser_log
+ cre_user="n"
+ fi
+ fi
+
+if [ $cre_user = "o" ]
+then
+ siacode=`echo $resu | awk -F\; '{print $1}'`
+ nom=`echo $resu | awk -F\; '{print $2}'`
+ prenom=`echo $resu | awk -F\; '{print $3}'`
+ service=`echo $resu | awk -F\; '{print $5}'`
+ ca=`echo $resu | awk -F\; '{print $4}'`
+ site=`echo $resu | awk -F\; '{print $6}'`
+ 
+ # passwd=1az2qs9wx
+ rand=$RANDOM
+ key=`date '+%S%a%e%b'`
+ passwd=`echo $rand | awk '{ print int(((1/$1*1000)+1)*10000000)}' | tr 0-9 $key`
+
+ # teste si compte existe deja dans CONTOSO
+ userinfo -D $domain -b $siacode 1> $null 2>&1
+ if [ $? != 0 ]
+ then 
+ 	case $site in
+		F01) grp_site="SITE_V1" ;;
+		F02|F06|F08) grp_site="SITE_V3" ;;
+		F04) grp_site="SITE_V2" ;;
+		F07) grp_site="company_VA" ;;
+		*) site="site"
+	 	 while [[ $site != "TO" && $site != "NA" && $site != "CA" && $site != "VA" ]] 
+	 	 do
+	 	echo "Quel site (TO=VILLE1, NA=VILLE3, CA=VILLE2, VA=VILLE4) ? "; read $site 
+ 			site=`echo $site | awk '{ print toupper($1) }'`
+	 	 done
+	 	 grp_site="company_"$site
+	 	 ;;
+ 	esac
+ description="$grp_site - $service ($ca)"
+	case $grp_site in
+
+		SITE_V1)
+			logonscript="loginall.bat"
+			controleur=$ctrl_to 
+			makecompte
+			;;
+		SITE_V3)
+			logonscript="loginall.bat"
+			controleur=$ctrl_na 
+			makecompte
+			;;
+		SITE_V2)
+			logonscript="loginuser.bat"
+			controleur=$ctrl_ca 
+			makecompte
+			;;
+
+	esac
+else
+ echo "UTILISATEUR "$siacode" EXISTE DEJA : "`userinfo -D CONTOSO -b $siacode`"\n" 
+ echo "$USERNAME LE `date '+%d/%m/%y'`: UTILISATEUR "$siacode" EXISTE DEJA" >> $mkuser_log
+ cod_retour=3
+ fi 
+else
+ cod_retour=2
+fi
+let line=line+1
+done
+exit $cod_retour
+}
+
+./ctrlpart.ksh n
+e04\presta_exploit\Creation
+cd //v2store/presta_exploit/creation
+create_ressource.WS2008.sh
+dir
+ls
+./create_ressource.WS2008.sh
+./ctrlpart.ksh n
+.
+exit
