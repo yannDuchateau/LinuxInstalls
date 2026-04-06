@@ -1,0 +1,1 @@
+$ lssrc -a |grep active
